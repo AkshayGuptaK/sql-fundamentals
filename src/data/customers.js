@@ -22,9 +22,13 @@ const ALL_CUSTOMERS_COLUMNS = ['id', 'contactname', 'companyname'];
  */
 export async function getAllCustomers(options = {}) {
   const db = await getDb();
+  let whereClause = '';
+  if (options.filter) {
+    whereClause = sql`WHERE companyname ILIKE %${options.filter}% OR contactname ILIKE %${options.filter}%`;
+  }
   return await db.all(sql`
-SELECT ${ALL_CUSTOMERS_COLUMNS.join(',')}
-FROM Customer`);
+  SELECT ${ALL_CUSTOMERS_COLUMNS.join(',')}
+  FROM Customer ${whereClause}`);
 }
 
 /**
