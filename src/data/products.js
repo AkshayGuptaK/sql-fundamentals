@@ -52,8 +52,15 @@ export async function getAllProducts(opts = {}) {
     }
   }
   return await db.all(sql`
-  SELECT ${ALL_PRODUCT_COLUMNS.join(',')}
-  FROM Product ${whereClause}`);
+  SELECT ${ALL_PRODUCT_COLUMNS.join(',')},
+    s.contactname AS suppliername,
+    c.categoryname
+  FROM Product
+  LEFT JOIN Supplier AS s
+  ON Product.supplierid = s.id
+  LEFT JOIN Category AS c
+  ON Product.categoryid = c.id
+  ${whereClause}`);
 }
 
 /**

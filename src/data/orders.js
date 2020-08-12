@@ -64,8 +64,15 @@ export async function getAllOrders(opts = {}, whereClause = '') {
   const offset = (options.page - 1) * options.perPage;
   let paginationClause = sql`LIMIT ${options.perPage} OFFSET ${offset}`;
   return await db.all(sql`
-SELECT ${ALL_ORDERS_COLUMNS.join(',')}
-FROM CustomerOrder ${whereClause}
+SELECT ${ALL_ORDERS_COLUMNS.map((x) => `co.${x}`).join(',')},
+  c.contactname AS customername,
+  e.lastname AS employeename
+FROM CustomerOrder AS co
+LEFT JOIN Customer AS c
+ON co.customerId = c.id
+LEFT JOIN Employee AS e
+ON co.employeeid = e.id
+${whereClause}
 ${sortClause}
 ${paginationClause}`);
 }
@@ -81,7 +88,7 @@ export async function getCustomerOrders(customerId, opts = {}) {
     DEFAULT_CUSTOMER_ORDER_COLLECTION_OPTIONS,
     ...opts
   };
-  return getAllOrders(options, sql`WHERE customerid = ${customerId}`);
+  return getAllOrders(options, sql`WHERE co.customerid = ${customerId}`);
 }
 
 /**
@@ -93,9 +100,15 @@ export async function getOrder(id) {
   const db = await getDb();
   return await db.get(
     sql`
-SELECT *
-FROM CustomerOrder
-WHERE id = $1`,
+SELECT ${ALL_ORDERS_COLUMNS.map((x) => `co.${x}`).join(',')},
+  c.contactname AS customername,
+  e.lastname AS employeename
+FROM CustomerOrder AS co
+LEFT JOIN Customer AS c
+ON co.customerId = c.id
+LEFT JOIN Employee AS e
+ON co.employeeid = e.id
+WHERE co.id = $1`,
     id
   );
 }
@@ -109,8 +122,11 @@ export async function getOrderDetails(id) {
   const db = await getDb();
   return await db.all(
     sql`
-SELECT *, unitprice * quantity as price
+SELECT *, unitprice * quantity as price,
+  p.productname
 FROM OrderDetail
+LEFT JOIN Product as p
+ON OrderDetail.productid = p.id
 WHERE orderid = $1`,
     id
   );
