@@ -152,42 +152,48 @@ export async function getOrderWithDetails(id) {
  */
 export async function createOrder(order, details = []) {
   const db = await getDb();
-  const result = await db.run(
-    sql`
-    INSERT INTO CustomerOrder (employeeid,customerid,shipcity,shipaddress,shipname,shipvia,shipregion,shipcountry,shippostalcode,requireddate,freight)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
-    order.employeeid,
-    order.customerid,
-    order.shipcity,
-    order.shipaddress,
-    order.shipname,
-    order.shipvia,
-    order.shipregion,
-    order.shipcountry,
-    order.shippostalcode,
-    order.requireddate,
-    order.freight
-  );
-  if (result) {
-    let orderId = result.lastID;
-    let count = 0;
-    await Promise.all(details.map(detail => {
-      count++;
-      return db.run(
-        sql`
-        INSERT INTO OrderDetail (id,orderid,productid,quantity,unitprice,discount)
-        VALUES ($1, $2, $3, $4, $5, $6)`,
-        `${orderId}/${count}`,
-        orderId,
-        detail.productid,
-        detail.quantity,
-        detail.unitprice,
-        detail.discount
-      );
-    }));
-    return {id: orderId};
+  await db.run(sql`BEGIN`);
+  try {
+    const result = await db.run(
+      sql`
+      INSERT INTO CustomerOrder (employeeid,customerid,shipcity,shipaddress,shipname,shipvia,shipregion,shipcountry,shippostalcode,requireddate,freight)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+      order.employeeid,
+      order.customerid,
+      order.shipcity,
+      order.shipaddress,
+      order.shipname,
+      order.shipvia,
+      order.shipregion,
+      order.shipcountry,
+      order.shippostalcode,
+      order.requireddate,
+      order.freight
+    );
+    if (result) {
+      let orderId = result.lastID;
+      let count = 0;
+      await Promise.all(details.map(detail => {
+        count++;
+        return db.run(
+          sql`
+          INSERT INTO OrderDetail (id,orderid,productid,quantity,unitprice,discount)
+          VALUES ($1, $2, $3, $4, $5, $6)`,
+          `${orderId}/${count}`,
+          orderId,
+          detail.productid,
+          detail.quantity,
+          detail.unitprice,
+          detail.discount
+        );
+      }));
+      await db.run(sql`COMMIT`);
+      return {id: orderId};
+    }
+  } catch(e) {
+    await db.run(sql`ROLLBACK`);
+    throw e;
   }
-  throw new Error('Order insertion did not return an ID');
 }
 
 /**
