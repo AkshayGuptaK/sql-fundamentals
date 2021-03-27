@@ -21,10 +21,10 @@ const ALL_EMPLOYEES_COLUMNS = [
 export async function getAllEmployees() {
   const db = await getDb();
   return await db.all(sql`
-  SELECT ${ALL_EMPLOYEES_COLUMNS.map(x => `em.${x}`).join(',')},COUNT(co.id) AS ordercount
-  FROM Employee AS em
-  LEFT JOIN CustomerOrder AS co ON co.employeeid = em.id
-  GROUP BY em.id`);
+  SELECT ${ALL_EMPLOYEES_COLUMNS.map(x => `e.${x}`).join(',')},COUNT(co.id) AS ordercount
+  FROM Employee AS e
+  LEFT JOIN CustomerOrder AS co ON co.employeeid = e.id
+  GROUP BY e.id`);
 }
 
 /**

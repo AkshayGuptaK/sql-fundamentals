@@ -27,11 +27,11 @@ export async function getAllCustomers(options = {}) {
     whereClause = sql`WHERE companyname LIKE '%${options.filter}%' OR contactname LIKE '%${options.filter}%'`;
   }
   return await db.all(sql`
-  SELECT ${ALL_CUSTOMERS_COLUMNS.map((x) => `cu.${x}`).join(',')},COUNT(co.id) AS ordercount
-  FROM Customer AS cu
-  LEFT JOIN CustomerOrder AS co ON co.customerid = cu.id
+  SELECT ${ALL_CUSTOMERS_COLUMNS.map((x) => `c.${x}`).join(',')},COUNT(co.id) AS ordercount
+  FROM Customer AS c
+  LEFT JOIN CustomerOrder AS co ON co.customerid = c.id
   ${whereClause}
-  GROUP BY cu.id`);
+  GROUP BY c.id`);
 }
 
 /**
