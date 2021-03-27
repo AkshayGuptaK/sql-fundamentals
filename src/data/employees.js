@@ -21,8 +21,8 @@ const ALL_EMPLOYEES_COLUMNS = [
 export async function getAllEmployees() {
   const db = await getDb();
   return await db.all(sql`
-SELECT ${ALL_EMPLOYEES_COLUMNS.join(',')}
-FROM Employee`);
+  SELECT ${ALL_EMPLOYEES_COLUMNS.join(',')}
+  FROM Employee`);
 }
 
 /**
@@ -34,9 +34,9 @@ export async function getEmployee(id) {
   const db = await getDb();
   return await db.get(
     sql`
-SELECT *
-FROM Employee
-WHERE id = $1`,
+  SELECT *
+  FROM Employee
+  WHERE id = $1`,
     id
   );
 }
