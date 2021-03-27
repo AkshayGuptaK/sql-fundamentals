@@ -14,7 +14,7 @@ export async function getAllSuppliers() {
   const db = await getDb();
   return await db.all(sql`
     SELECT ${ALL_SUPPLIERS_COLUMNS.map((x) => `s.${x}`).join(',')},
-      group_concat(p.productname) as productlist
+      group_concat(p.productname, ", ") as productlist
     FROM Supplier as s
     LEFT JOIN Product as p
     ON s.id = p.supplierid

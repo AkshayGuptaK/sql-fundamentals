@@ -101,7 +101,8 @@ export async function getOrder(id) {
     sql`
     SELECT ${ALL_ORDERS_COLUMNS.map((x) => `co.${x}`).join(',')},
       c.contactname AS customername,
-      e.lastname AS employeename
+      e.lastname AS employeename,
+      SUM((1-od.discount) * od.unitprice * od.quantity) AS subtotal
     FROM CustomerOrder AS co
     LEFT JOIN Customer AS c
     ON co.customerId = c.id
