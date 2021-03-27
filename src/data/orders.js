@@ -6,8 +6,14 @@ export const ALL_ORDERS_COLUMNS = [
   'customerid',
   'employeeid',
   'shipcity',
+  'shipaddress',
+  'shipname',
+  'shipvia',
+  'shipregion',
   'shipcountry',
-  'shippeddate'
+  'shippostalcode',
+  'requireddate',
+  'freight'
 ];
 export const ORDER_COLUMNS = ['*'];
 
@@ -219,5 +225,56 @@ export async function deleteOrder(id) {
  * @returns {Promise<Partial<Order>>} the order
  */
 export async function updateOrder(id, data, details = []) {
-  return Promise.reject('Orders#updateOrder() NOT YET IMPLEMENTED');
+  const db = await getDb();
+  await db.run(sql`BEGIN`);
+  try {
+    await db.run(
+      sql`
+      UPDATE CustomerOrder SET 
+      employeeid = $1,
+      customerid = $2,
+      shipcity = $3,
+      shipaddress = $4,
+      shipname = $5,
+      shipvia = $6,
+      shipregion = $7,
+      shipcountry = $8,
+      shippostalcode = $9,
+      requireddate = $10,
+      freight = $11
+      WHERE id = $12`,
+      data.employeeid,
+      data.customerid,
+      data.shipcity,
+      data.shipaddress,
+      data.shipname,
+      data.shipvia,
+      data.shipregion,
+      data.shipcountry,
+      data.shippostalcode,
+      data.requireddate,
+      data.freight,
+      id
+    );
+    await Promise.all(details.map(detail => {
+        return db.run(
+          sql`
+          UPDATE OrderDetail SET
+          unitprice=$1,
+          quantity=$2,
+          productid=$3,
+          discount=$4
+          WHERE id=$5`,
+          detail.unitprice,
+          detail.quantity,
+          detail.productid,
+          detail.discount,
+          id
+        );
+      }));
+      await db.run(sql`COMMIT`);
+  } catch(e) {
+    await db.run(sql`ROLLBACK`);
+    throw e;
+  }
 }

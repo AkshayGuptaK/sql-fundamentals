@@ -38,7 +38,7 @@ class UpdateOrderWithDetailsTest {
   @test('updateOrder() results in the order details being updated')
   public async updateOrderUpdatesDetails() {
     let { id } = await createOrder(VALID_ORDER_DATA, [
-      { productid: 9, quantity: 3, discount: 0, unitprice: 3.0 }
+      { productid: 9, quantity: 3, discount: 0.5, unitprice: 3.0 }
     ]);
     if (typeof id === 'undefined') {
       assert.ok(false, 'newly created order id is not truthy');
