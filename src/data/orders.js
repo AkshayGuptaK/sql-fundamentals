@@ -151,7 +151,43 @@ export async function getOrderWithDetails(id) {
  * @returns {Promise<{id: string}>} the newly created order
  */
 export async function createOrder(order, details = []) {
-  return Promise.reject('Orders#createOrder() NOT YET IMPLEMENTED');
+  const db = await getDb();
+  const result = await db.run(
+    sql`
+    INSERT INTO CustomerOrder (employeeid,customerid,shipcity,shipaddress,shipname,shipvia,shipregion,shipcountry,shippostalcode,requireddate,freight)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+    order.employeeid,
+    order.customerid,
+    order.shipcity,
+    order.shipaddress,
+    order.shipname,
+    order.shipvia,
+    order.shipregion,
+    order.shipcountry,
+    order.shippostalcode,
+    order.requireddate,
+    order.freight
+  );
+  if (result) {
+    let orderId = result.lastID;
+    let count = 0;
+    await Promise.all(details.map(detail => {
+      count++;
+      return db.run(
+        sql`
+        INSERT INTO OrderDetail (id,orderid,productid,quantity,unitprice,discount)
+        VALUES ($1, $2, $3, $4, $5, $6)`,
+        `${orderId}/${count}`,
+        orderId,
+        detail.productid,
+        detail.quantity,
+        detail.unitprice,
+        detail.discount
+      );
+    }));
+    return {id: orderId};
+  }
+  throw new Error('Order insertion did not return an ID');
 }
 
 /**
@@ -160,7 +196,13 @@ export async function createOrder(order, details = []) {
  * @returns {Promise<any>}
  */
 export async function deleteOrder(id) {
-  return Promise.reject('Orders#deleteOrder() NOT YET IMPLEMENTED');
+  const db = await getDb();
+  return await db.run(
+    sql`
+    DELETE FROM CustomerOrder
+    WHERE id=$1`,
+    id
+  );
 }
 
 /**
