@@ -12,7 +12,7 @@ const ALL_REGIONS_COLUMNS = ['id', 'regiondescription'];
  */
 export async function getAllRegions() {
   const db = await getDb();
-  return await db.all(sql`
+  return db.all(sql`
 SELECT ${ALL_REGIONS_COLUMNS.map(c => `r.${c}`).join(',')}
 FROM Region as r`);
 }

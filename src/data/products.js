@@ -51,7 +51,7 @@ export async function getAllProducts(opts = {}) {
         break;
     }
   }
-  return await db.all(sql`
+  return db.all(sql`
   SELECT ${ALL_PRODUCT_COLUMNS.join(',')},
     s.contactname AS suppliername,
     c.categoryname
@@ -70,7 +70,7 @@ export async function getAllProducts(opts = {}) {
  */
 export async function getProduct(id) {
   const db = await getDb();
-  return await db.get(
+  return db.get(
     sql`
 SELECT ${ALL_PRODUCT_COLUMNS.join(',')}
 FROM Product

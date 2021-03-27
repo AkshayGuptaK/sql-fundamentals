@@ -26,7 +26,7 @@ export async function getAllCustomers(options = {}) {
   if (options.filter) {
     whereClause = sql`WHERE companyname LIKE '%${options.filter}%' OR contactname LIKE '%${options.filter}%'`;
   }
-  return await db.all(sql`
+  return db.all(sql`
   SELECT ${ALL_CUSTOMERS_COLUMNS.map((x) => `c.${x}`).join(',')},COUNT(co.id) AS ordercount
   FROM Customer AS c
   LEFT JOIN CustomerOrder AS co ON co.customerid = c.id
@@ -43,7 +43,7 @@ export async function getAllCustomers(options = {}) {
  */
 export async function getCustomer(id) {
   const db = await getDb();
-  return await db.get(
+  return db.get(
     sql`
 SELECT *
 FROM Customer

@@ -6,7 +6,7 @@ import { sql } from '../sql-string';
  */
 export async function getEmployeeSalesLeaderboard() {
   let db = await getDb();
-  return await db.all(sql`
+  return db.all(sql`
 SELECT (e.firstname || ' ' || e.lastname) AS name, sum((od.unitprice * od.quantity))as amount
 FROM Employee AS e
 INNER JOIN CustomerOrder AS o
@@ -22,7 +22,7 @@ ORDER BY  amount DESC LIMIT 5`);
  */
 export async function getCustomerSalesLeaderboard() {
   let db = await getDb();
-  return await db.all(sql`
+  return db.all(sql`
 SELECT c.companyname AS name,
          sum((od.unitprice * od.quantity))as amount
 FROM Customer AS c
@@ -39,7 +39,7 @@ ORDER BY  amount DESC LIMIT 5`);
  */
 export async function getProductSalesLeaderboard() {
   let db = await getDb();
-  return await db.all(sql`
+  return db.all(sql`
 SELECT p.productname AS name,
          sum(od.unitprice * od.quantity) AS amount
 FROM OrderDetail AS od
@@ -56,7 +56,7 @@ ORDER BY  amount DESC LIMIT 5`);
  */
 export async function getRecentOrders() {
   let db = await getDb();
-  return await db.all(sql`
+  return db.all(sql`
 SELECT o.id,
          (e.firstname || ' ' || e.lastname) AS employee, c.companyname AS customer, o.orderdate, sum(od.unitprice * od.quantity) AS subtotal
 FROM CustomerOrder AS o
@@ -76,7 +76,7 @@ ORDER BY  o.orderdate DESC LIMIT 5`);
  */
 export async function getReorderList() {
   let db = await getDb();
-  return await db.all(sql`
+  return db.all(sql`
 SELECT productname AS name,
          reorderlevel,
          unitsinstock,

@@ -12,7 +12,7 @@ const ALL_SUPPLIERS_COLUMNS = ['id', 'contactname', 'companyname'];
  */
 export async function getAllSuppliers() {
   const db = await getDb();
-  return await db.all(sql`
+  return db.all(sql`
     SELECT ${ALL_SUPPLIERS_COLUMNS.map((x) => `s.${x}`).join(',')},
       group_concat(p.productname, ", ") as productlist
     FROM Supplier as s
@@ -28,7 +28,7 @@ export async function getAllSuppliers() {
  */
 export async function getSupplier(id) {
   const db = await getDb();
-  return await db.get(
+  return db.get(
     sql`
 SELECT *
 FROM Supplier

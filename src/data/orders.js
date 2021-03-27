@@ -12,6 +12,7 @@ export const ALL_ORDERS_COLUMNS = [
   'shipregion',
   'shipcountry',
   'shippostalcode',
+  'shippeddate',
   'requireddate',
   'freight'
 ];
@@ -69,7 +70,7 @@ export async function getAllOrders(opts = {}, whereClause = '') {
   }
   const offset = (options.page - 1) * options.perPage;
   let paginationClause = sql`LIMIT ${options.perPage} OFFSET ${offset}`;
-  return await db.all(sql`
+  return db.all(sql`
     SELECT ${ALL_ORDERS_COLUMNS.map((x) => `co.${x}`).join(',')},
       c.contactname AS customername,
       e.lastname AS employeename
@@ -103,7 +104,7 @@ export async function getCustomerOrders(customerId, opts = {}) {
  */
 export async function getOrder(id) {
   const db = await getDb();
-  return await db.get(
+  return db.get(
     sql`
     SELECT ${ALL_ORDERS_COLUMNS.map((x) => `co.${x}`).join(',')},
       c.contactname AS customername,
@@ -125,7 +126,7 @@ export async function getOrder(id) {
  */
 export async function getOrderDetails(id) {
   const db = await getDb();
-  return await db.all(
+  return db.all(
     sql`
     SELECT od.*, od.unitprice * od.quantity as price,
       p.productname,
@@ -209,7 +210,7 @@ export async function createOrder(order, details = []) {
  */
 export async function deleteOrder(id) {
   const db = await getDb();
-  return await db.run(
+  return db.run(
     sql`
     DELETE FROM CustomerOrder
     WHERE id=$1`,

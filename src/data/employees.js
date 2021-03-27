@@ -20,7 +20,7 @@ const ALL_EMPLOYEES_COLUMNS = [
  */
 export async function getAllEmployees() {
   const db = await getDb();
-  return await db.all(sql`
+  return db.all(sql`
   SELECT ${ALL_EMPLOYEES_COLUMNS.map(x => `e.${x}`).join(',')},COUNT(co.id) AS ordercount
   FROM Employee AS e
   LEFT JOIN CustomerOrder AS co ON co.employeeid = e.id
@@ -34,7 +34,7 @@ export async function getAllEmployees() {
  */
 export async function getEmployee(id) {
   const db = await getDb();
-  return await db.get(
+  return db.get(
     sql`
   SELECT *
   FROM Employee
