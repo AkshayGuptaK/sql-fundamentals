@@ -16,7 +16,7 @@ export async function getAllSuppliers() {
     SELECT ${ALL_SUPPLIERS_COLUMNS.map((x) => `s.${x}`).join(',')},
       group_concat(p.productname, ", ") as productlist
     FROM Supplier as s
-    LEFT JOIN Product as p ON p.supplierid = s.id
+    LEFT JOIN (SELECT * FROM Product ORDER BY productname) AS p ON p.supplierid = s.id
     GROUP BY s.id, s.contactname, s.companyname
   `);
 }
